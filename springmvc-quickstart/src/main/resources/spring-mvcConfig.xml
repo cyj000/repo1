@@ -1,0 +1,88 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/mvc
+http://www.springframework.org/schema/mvc/spring-mvc.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--    开启扫包-->
+    <!--    springmvc也会创建IOC容器，这个容器是Spring IOC容器的子容器。-->
+    <!--    配置具体的位置，与springBean的配置分开。-->
+    <context:component-scan base-package="com.lagou.controller"></context:component-scan>
+
+    <!--    主动配置处理器映射器  处理器适配器   -->
+    <!--    conversion-service加载转换器-->
+    <mvc:annotation-driven conversion-service="conversionService"/>
+
+    <!--    主动配置视图解析器 方法一-->
+<!--        <mvc:view-resolvers>-->
+<!--            <mvc:jsp prefix="/WEB-INF/pages/"></mvc:jsp>-->
+<!--            <mvc:jsp suffix=".jsp"></mvc:jsp>-->
+<!--        </mvc:view-resolvers>-->
+
+    <!--    注册成IOC管理的对象来进行配置-->
+    <bean id="resolverManager" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/pages/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+
+
+    <!--    配置参数转换器 set方法配置-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <set>
+                <bean class="com.lagou.conver.DataConverter"></bean>
+            </set>
+        </property>
+    </bean>
+    <!--    静态资源放行的两种方式  1.mapping 放行的映射路径 location 静态资源所在的目录-->
+    <mvc:resources mapping="/img/**" location="/img/"></mvc:resources>
+    <mvc:resources mapping="/css/**" location="/css/"></mvc:resources>
+    <mvc:resources mapping="/js/**" location="/js/"></mvc:resources>
+    <!--    方式二 在springmvc配置文件中开启DefaultServlet处理静态资源-->
+    <!--    <mvc:default-servlet-handler />-->
+
+    <!--    配置文件上传时的解析器-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--        文件上传的最大值   5*1024*1024-->
+        <property name="maxUploadSize" value="5242880"></property>
+        <!--        设定文件写入内存的最大值,如果小于这个数那么将不会产生临时文件,默认为10240-->
+        <property name="maxInMemorySize" value="40960"></property>
+    </bean>
+
+    <!--    全局异常配置-->
+    <bean id="globalExceptionResolver" class="com.lagou.exception.GlobalExceptionResolver"></bean>
+
+<!--        web 拦截器配置-->
+<!--        <mvc:interceptors>-->
+<!--            <mvc:interceptor>-->
+<!--    &lt;!&ndash;            所有包以及包下得子包&ndash;&gt;-->
+<!--                <mvc:mapping path="/**"/>-->
+<!--                <bean class="com.lagou.interceptor.MyInterceptor1"></bean>-->
+<!--            </mvc:interceptor>-->
+<!--            <mvc:interceptor>-->
+<!--                &lt;!&ndash;            所有包以及包下得子包&ndash;&gt;-->
+<!--                <mvc:mapping path="/**"/>-->
+<!--                <bean class="com.lagou.interceptor.MyInterceptor2"></bean>-->
+<!--            </mvc:interceptor>-->
+<!--        </mvc:interceptors>-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.lagou.interceptor.MyInterceptor1"/>
+        </mvc:interceptor>
+        
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.lagou.interceptor.MyInterceptor2"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.lagou.interceptor.MyInterceptor3"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>
